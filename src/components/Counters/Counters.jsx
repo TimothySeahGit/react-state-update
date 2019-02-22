@@ -1,13 +1,16 @@
 import React, { Component } from "react";
 import Counter from "../Counter/Counter";
 import _ from "lodash";
-import produce from "immer";
+import produce, { setAutoFreeze } from "immer";
 
 export class Counters extends Component {
   state = {
     data: [{ id: 1, value: 0 }, { id: 2, value: 0 }]
   };
-
+  constructor(props) {
+    super(props);
+    setAutoFreeze(false);
+  }
   settingState = (counterId, operator) => {
     // const copy = _.cloneDeep(this.state.data);
     // console.log(JSON.stringify(this.state.data));
@@ -29,12 +32,24 @@ export class Counters extends Component {
   };
 
   handleReset = () => {
-    const copy = _.cloneDeep(this.state.data);
-    const updated = copy.map(counter => {
-      counter.value = 0;
-      return counter;
-    });
-    this.setState({ data: updated });
+    // const copy = _.cloneDeep(this.state.data);
+    // const updated = copy.map(counter => {
+    //   counter.value = 0;
+    //   return counter;
+    // });
+    // this.setState({ data: updated });
+    const updated = state => {
+      //takes in a state, makes a copy into draft, applies mutations to draft, and returns the new draft
+
+      return produce(state, draft => {
+        draft.data.map(counter => {
+          counter.value = 0;
+          return counter;
+        });
+      });
+    };
+
+    this.setState(updated);
   };
   render() {
     const { data } = this.state;
