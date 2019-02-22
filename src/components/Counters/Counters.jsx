@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import Counter from "../Counter/Counter";
 import _ from "lodash";
+import produce from "immer";
 
 export class Counters extends Component {
   state = {
@@ -8,14 +9,20 @@ export class Counters extends Component {
   };
 
   settingState = (counterId, operator) => {
-    const copy = _.cloneDeep(this.state.data);
-    console.log(JSON.stringify(this.state.data));
-    copy.find(element => element.id === counterId).value += operator;
+    // const copy = _.cloneDeep(this.state.data);
+    // console.log(JSON.stringify(this.state.data));
 
-    console.log(JSON.stringify(this.state.data));
-    console.log(JSON.stringify(copy));
-    this.setState({ data: copy });
+    const updated = state => {
+      //takes in a state, makes a copy into draft, applies mutations to draft, and returns the new draft
+
+      return produce(state, draft => {
+        draft.data.find(element => element.id === counterId).value += operator;
+      });
+    };
+
+    this.setState(updated);
   };
+
   handleIncrement = counterId => {
     //TODO: To check article on async update of counter
     this.settingState(counterId, 1);
